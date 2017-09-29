@@ -1,0 +1,40 @@
+* {
+  box-sizing: border-box;
+}
+
+.side-bar {
+  float: none;
+  position: relative;
+  width: 100%;
+}
+
+.side-bar .nav,
+.side-bar .tag-list {
+  text-align: center;
+  display: none;
+}
+
+.main {
+  width: 100%;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.article-list {
+  margin: 0;
+}
+
+#menu-toggle {
+  display: block;
+  position: absolute;
+  right: 3px;
+  top: 10px;
+  font-size: 18px;
+  font-weight: 100;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+#menu_checkbox:checked ~ .nav,
+#menu_checkbox:checked ~ .tag-list{
+  display: block;
+}

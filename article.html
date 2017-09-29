@@ -1,0 +1,161 @@
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/normalize/7.0.0/normalize.css">
+    <link rel="stylesheet" href="main.css">
+    <title>猫叫春天到</title>
+</head>
+<div class="main">
+        <div class="article">
+            <h1 class="title">KMP算法</h1>
+            <div class="status">发布于：2017.9.12 | 阅读：3500| 标签：#两性研究所</div>
+            <div class="cotent">
+                <div>KMP算法的核心是计算模板字符串的最大前缀和后缀的公共部分的最大长度</div>
+                <div>，但不包括字符串本身，否则最大长度始终是字符串本身。</div>
+                <div>一：步骤：</div>
+                <div>1.获得模板字符串每个位置的最大公共长度，我们用数组next存储。</div>
+
+                <div>2.利用模板字符串每个位置的最大公共长度，对模板字符串和目标字符串进
+                行对比，当每次比较到两个字符串的字符不同时，我们根据最大公共长度将
+                模板字符串进行概念上的前移。</div>
+
+                <div>二：那么什么是概念上的前移呢？</div>
+
+                例如：<br>
+                下标： 0 1 2 3 4 5 6 7 8 9 10 11 12 <br>
+                模板字符串：b a b d c <br>
+                目标字符串：a b a b c a b a b a  b  d  c <br>
+                为了方便说明，我将next数组提前求出，求next的方法等会说 <br>
+                下标： 0  1  2  3  4 <br>
+                next：-1  0  0  1  0 <br>
+                <div>对模板串和目标串进行比较，模板串的bab下一个是d，目标串的bab下一个
+                是c，出现不同，利用next数组，模板串的下标将从3到1,（next[3] = 1）
+                ，相当于将模板串向前移动了两位。如下：</div>
+                移动前： <br>
+                下标： 0 1 2 3 4 5 6 7 8 9 10 11 12 <br>
+                模板字符串：  b a b d c <br>
+                目标字符串：a b a b c a b a b a  b  d  c <br>
+                移动后： <br>
+                下标： 0 1 2 3 4 5 6 7 8 9 10 11 12 <br>
+                模板字符串：      b a b d c <br>
+                目标字符串：a b a b c a b a b a  b  d  c <br>
+                三：求最大公共部分 <br>
+                1.next数组的实现 <br>
+                网上找的代码： <br>
+                int[] GetNextVal(string smallstr) <br>
+                { <br>
+                //前缀串起始位置("-1"是方便计算） <br>
+                int k = -1; <br>
+                //后缀串起始位置（"0"是方便计算） <br>
+                int j = 0; <br>
+                int[] next = new int[smallstr.Length]; <br>
+                //根据公式： j=0时，next[j]=-1 <br>
+                next[j] = -1; <br>
+                while (j < smallstr.Length - 1) <br>
+                { <br>
+                if (k == -1 || smallstr[k] == smallstr[j]) <br>
+                { <br>
+                //pk=pj的情况: <br>
+                next[j+1]=k+1 => next[j+1]=next[j]+1 <br>
+                next[++j] = ++k; <br>
+                } <br>
+                else <br>
+                { <br>
+                //pk != pj 的情况:我们递推 k=next[k]; <br>
+                //要么找到，要么k=-1中止 <br>
+                k = next[k]; <br>
+                } <br>
+                } <br>
+                return next; <br>
+                } <br>
+                k为最大公共长度，j为已匹配的字符数。 <br>
+                <div>当两个字符不相同，我们可以将长度为next[j]的字符串进行分割，这和前
+                面讲的概念上的前移思想相同。获得其最大公共长度next[k]，然后再和位
+                置i的字符比较。这是因为长度为next[j]前缀和后缀都可以分割成上部的构
+                造，如果位置next[k]和位置i的字符相同，则next[i+1]就等于next[k]加1
+                。如果不相等，就可以继续分割长度为next[k]的字符串，直到字符串长度
+                为0为止.</div>
+                四：完整代码 <br>
+                using System; <br>
+                using System.Collections.Generic; <br>
+                using System.Linq; <br>
+                using System.Text; <br>
+                    <br>
+                namespace SupportCenter.Test <br>
+                { <br>
+                public class Program <br>
+                { <br>
+                static void Main(string[] args) <br>
+                { <br>
+                string zstr = "ababcabababdc"; <br>
+                string mstr = "babdc"; <br>
+                var index = KMP(zstr, mstr); <br>
+                if (index == -1) <br>
+                Console.WriteLine("没有匹配的字符串！"); <br>
+                else <br>
+                Console.WriteLine("哈哈，找到字符啦，位置为：" + index); <br>
+                Console.Read(); <br>
+                } <br>
+                static int KMP(string bigstr, string smallstr) <br>
+                { <br>
+                int i = 0; <br>
+                int j = 0; <br>
+                //计算“前缀串”和“后缀串“的next <br>
+                int[] next = GetNextVal(smallstr); <br>
+                while (i < bigstr.Length && j < smallstr.Length) <br>
+                { <br>
+                if (j == -1 || bigstr[i] == smallstr[j]) <br>
+                { <br>
+                i++; <br>
+                j++; <br>
+                } <br>
+                else <br>
+                { <br>
+                j = next[j]; <br>
+                } <br>
+                } <br>
+                if (j == smallstr.Length) <br>
+                return i - smallstr.Length; <br>
+                return -1; <br>
+                } <br>
+                /// <summary> <br>
+                /// p0,p1....pk-1         （前缀串） <br>
+                /// pj-k,pj-k+1....pj-1   （后缀串) <br>
+                /// </summary> <br>
+                /// <param name="match"></param> <br>
+                /// <returns></returns> <br>
+                static int[] GetNextVal(string smallstr) <br>
+                { <br>
+                //前缀串起始位置("-1"是方便计算） <br>
+                int k = -1; <br>
+                //后缀串起始位置（"-1"是方便计算） <br>
+                int j = 0; <br>
+                int[] next = new int[smallstr.Length]; <br>
+                //根据公式： j=0时，next[j]=-1 <br>
+                next[j] = -1; <br>
+                while (j < smallstr.Length - 1) <br>
+                { <br>
+                if (k == -1 || smallstr[k] == smallstr[j]) <br>
+                { <br>
+                //pk=pj的情况: next[j+1]=k+1 => next[j+1]=next[j]+1 <br>
+                next[++j] = ++k; <br>
+                } <br>
+                else <br>
+                { <br>
+                //pk != pj 的情况:我们递推 k=next[k]; <br>
+                //要么找到，要么k=-1中止 <br>
+                k = next[k]; <br>
+                } <br>
+                } <br>
+                return next; <br>
+                } <br>
+                } <br>
+                } <br>
+                参考博客 <br>
+                <div>http://www.cnblogs.com/huangxincheng/archive/2012/12/01/2796993.html</div>
+
+                <div>http://billhoo.blog.51cto.com/2337751/411486/</div>
+
+                <div>http://blog.csdn.net/yutianzuijin/article/details/11954939/</div>
+            </div>
+        </div>
+</div>
